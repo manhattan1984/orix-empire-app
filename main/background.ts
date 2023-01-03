@@ -1,14 +1,9 @@
 import { app, ipcMain } from "electron";
 import serve from "electron-serve";
+import { Order } from "../types";
 import { createWindow } from "./helpers";
-
-import Realm from "realm";
 import { UseRealm } from "./useRealm";
-// import { getProductById, getProducts, UseRealm } from "./useRealm";
-
 require("@electron/remote/main").initialize();
-
-// const { app } = require("@electron/remote");
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
@@ -21,21 +16,29 @@ if (isProd) {
 const RealmDb = new UseRealm();
 
 ipcMain.on("show-products", async (event, arg) => {
-  console.log("show", arg);
-
   const products = RealmDb.getProducts(arg);
-  console.log("produc", products);
 
   event.sender.send("products-ready", products);
 });
 
 ipcMain.handle("get-product-by-id", async (event, arg) => {
-  console.log("_id", arg);
   const product = RealmDb.getProductById(arg);
 
-  console.log("productor", product);
-
   return product;
+});
+
+ipcMain.handle("get-orders", async (event, arg) => {
+
+  const orders = RealmDb.getOrders(arg);
+
+  console.log("filtered orders", orders);
+
+  return orders;
+});
+
+ipcMain.handle("add-order", async (event, order: Order) => {
+  RealmDb.addOrder(order);
+  return;
 });
 
 (async () => {
@@ -49,9 +52,6 @@ ipcMain.handle("get-product-by-id", async (event, arg) => {
       contextIsolation: false,
     },
   });
-
-  // require("@electron/remote/main").enable(mainWindow.webContents);
-
   if (isProd) {
     await mainWindow.loadURL("app://./home.html");
   } else {

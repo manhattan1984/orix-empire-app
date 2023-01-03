@@ -29,7 +29,7 @@ const Home = () => {
         <Typography variant="h5">
           ORIX EMPIRE {department.toUpperCase()}
         </Typography>
-        <SellingPoint department={""} email={""} />
+        <SellingPoint department={""} email={"me"} />
       </>
     </>
   );

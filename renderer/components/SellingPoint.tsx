@@ -11,14 +11,18 @@ import {
 } from "@mui/material";
 
 import React, { useEffect, useState, useRef } from "react";
-import { useShoppingCart, Product } from "../context/ShoppingCartContext";
+import {
+  useShoppingCart,
+  Product,
+  CartItem,
+} from "../context/ShoppingCartContext";
 import { useReactToPrint } from "react-to-print";
 import { useRouter } from "next/router";
 
 import SaleItem, { getProduct } from "../components/SaleItem";
-import SalesReciept from "../components/SalesReciept";
+import SalesReciept, { ProductInCartItem } from "../components/SalesReciept";
 
-import ReportDialog from "../components/ReportDialog";
+import ReportDialog from "./ReportDialog";
 import { formatCurrency } from "../utilities/formatCurrency";
 import { useSnackbar } from "notistack";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -37,6 +41,8 @@ import {
 } from "@mui/icons-material";
 import Head from "next/head";
 import electron, { IpcRenderer } from "electron";
+
+import { Order, OrderItem } from "../../types";
 
 const ipcRenderer = electron.ipcRenderer || false;
 
@@ -57,6 +63,7 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [search, setSearch] = useState<string>("");
   const [products, setProducts] = useState([]);
+  const [productsInCart, setProductsInCart] = useState<ProductInCartItem[]>();
   //
   const [online, setOnline] = useState(true);
   useEffect(() => {
@@ -87,8 +94,21 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
 
   const isCartEmpty = cartItems.length === 0;
 
-  const addOrderToDatabase = async () => {
+  const addOrderToDatabase = () => {
     // Update Cart Items
+
+    const soldBy = email;
+
+    const orderTime = Date.now();
+
+    const order = { order: productsInCart, soldBy, orderTime };
+
+    // throw new Error("Connect to DB");
+
+    // @ts-ignore
+    ipcRenderer.invoke("add-order", order);
+
+    return false;
 
     try {
       // add order to database
@@ -113,9 +133,10 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
     console.log(isCartEmpty);
 
     if (!isCartEmpty && due === 0) {
-      addOrderToDatabase();
-      handlePrint();
-      clearSales();
+      if (addOrderToDatabase()) {
+        handlePrint();
+        clearSales();
+      }
     }
     if (isCartEmpty) {
       enqueueSnackbar("Cart Is Empty");
@@ -145,7 +166,6 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
 
     // @ts-ignore
     ipcRenderer.on("products-ready", (event, args) => {
-      // console.log(args);
       setProducts(args);
     });
 
@@ -173,11 +193,34 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
         setTotal(newTotal);
       })
       .catch((e) => console.log(e));
+
+    getProductsInCart(setProductsInCart, cartItems);
   }, [cartItems]);
 
   useEffect(() => {
     calculateDue();
   }, [total]);
+
+  type SetListType = {
+    (value: React.SetStateAction<ProductInCartItem[]>): void;
+    (arg0: ProductInCartItem[]): void;
+  };
+
+  function getProductsInCart(setList: SetListType, cartItems: CartItem[]) {
+    const productsPromises = cartItems.map(async ({ _id, quantity }) => {
+      try {
+        const product = await getProduct(_id);
+
+        return { ...product, _id, quantity };
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    Promise.all(productsPromises).then((items: ProductInCartItem[]) => {
+      setList(items);
+    });
+  }
 
   const inputProps = {
     min: 0,
@@ -226,7 +269,6 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
                     {...params}
                     onChange={(e) => {
                       setSearch(e.currentTarget.value);
-                      console.log(search);
                     }}
                     label="Product"
                   />
@@ -323,11 +365,11 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
           </Paper>
         </Grid>
       </Grid>
-      <Box sx={{ display: "none" }}>
+      <Box sx={{ display: "block" }}>
         <Box ref={recieptRef}>
           <SalesReciept
             total={total}
-            products={products}
+            productsInCart={productsInCart}
             department={department}
           />
         </Box>

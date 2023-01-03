@@ -26,7 +26,6 @@ export async function getProduct(_id: string): Promise<Product> {
   try {
     // @ts-ignore
     const product: Product = await ipcRenderer.invoke("get-product-by-id", _id);
-    console.log("returned", product);
     return product;
   } catch (e) {
     console.log(e);

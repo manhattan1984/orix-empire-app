@@ -5,7 +5,7 @@ type ShoppingCartProviderProps = {
   children: ReactNode;
 };
 
-type CartItem = {
+export type CartItem = {
   _id: string;
   quantity: number;
 };

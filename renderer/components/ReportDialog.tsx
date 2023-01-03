@@ -6,24 +6,16 @@ import SalesRange from "./SalesRange";
 import CircularProgress from "@mui/material/CircularProgress";
 import Loading from "./Loading";
 
+import { Order, OrderItem } from "../../types";
+import electron from "electron";
+
+const ipcRenderer = electron.ipcRenderer || false;
+
 type ReportDialogProps = {
   open: boolean;
   onClose: () => void;
   userEmail: string;
   department: string;
-};
-
-type OrderItem = {
-  name: string;
-  price: number;
-  quantity: number;
-};
-
-type Order = {
-  soldBy: string;
-  total: number;
-  order: OrderItem[];
-  orderTime: Date;
 };
 
 const ReportDialog = ({
@@ -36,26 +28,21 @@ const ReportDialog = ({
     onClose();
   };
 
-  const [startDate, setStartDate] = useState<Dayjs | null>(dayjs());
-  const [endDate, setEndDate] = useState<Dayjs | null>(dayjs());
+  const defaultDate: Dayjs = dayjs();
 
-  // const q = query(
-  //   collection(firestoreDB, `orixempire/${department}/orders`),
-  //   where("soldBy", "==", userEmail),
-  //   where("orderTime", ">=", startDate.toDate()),
-  //   where("orderTime", "<=", endDate.toDate())
-  // );
+  const [startDate, setStartDate] = useState<Dayjs | null>(defaultDate);
+  const [endDate, setEndDate] = useState<Dayjs | null>(defaultDate);
+  const [orders, setOrders] = useState<Order[]>([]);
 
-  let orders, ordersLoading;
-
-  // const [orders, ordersLoading, ordersError, snapshot] = useCollectionData<
-  //   Order | any
-  // >(q, {});
+  // let orders, ordersLoading;
 
   const [totalSales, setTotalSales] = useState<number>(0);
 
   const getTotalSale = (): number => {
-    return orders?.reduce((initial: number, { total }) => initial + total, 0);
+    return orderSummary.reduce(
+      (initial: number, { total }) => initial + total,
+      0
+    );
   };
 
   const [orderSummary, setOrderSummary] = useState([]);
@@ -93,18 +80,34 @@ const ReportDialog = ({
     setOrderSummary(summary);
   };
 
-  const test = async () => {
-    // Filter Orders
+  const getOrders = async () => {
+    const user = "me";
+
+    const getTimeStamp = (date: Dayjs) => dayjs(date).valueOf();
+
+    const startDateTimeStamp = getTimeStamp(startDate);
+    const endDateTimeStamp = getTimeStamp(endDate);
+
+    console.log("timestamps", startDateTimeStamp, endDateTimeStamp, userEmail);
+
+    // @ts-ignore
+    const now = await ipcRenderer.invoke("get-orders", {
+      startDateTimeStamp,
+      endDateTimeStamp,
+      soldBy: userEmail,
+    });
+    setOrders(now);
   };
 
   useEffect(() => {
-    setTotalSales(getTotalSale());
+    getOrders();
     getSummary();
+    console.log("orders length", orders.length);
+  }, [startDate, endDate]);
 
-    test();
-
-    console.log("fetching orders");
-  }, [orders, ordersLoading, startDate, endDate]);
+  useEffect(() => {
+    setTotalSales(getTotalSale());
+  }, [orderSummary]);
 
   return (
     <Dialog onClose={handleClose} open={open} fullWidth={true}>
@@ -127,24 +130,20 @@ const ReportDialog = ({
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            {!ordersLoading ? (
-              orderSummary.map(({ name, sold, total }) => (
-                <Grid container key={name}>
-                  <Grid item xs={4}>
-                    <Typography>{name}</Typography>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Typography>{sold}</Typography>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Typography>{formatCurrency(total)}</Typography>
-                  </Grid>
-                  <Divider />
+            {orderSummary.map(({ name, sold, total }) => (
+              <Grid container key={name}>
+                <Grid item xs={4}>
+                  <Typography>{name}</Typography>
                 </Grid>
-              ))
-            ) : (
-              <Loading fullScreen={false} />
-            )}
+                <Grid item xs={4}>
+                  <Typography>{sold}</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography>{formatCurrency(total)}</Typography>
+                </Grid>
+                <Divider />
+              </Grid>
+            ))}
           </Grid>
         </Grid>
         <Box display="flex" justifyContent="space-between">

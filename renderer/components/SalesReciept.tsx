@@ -1,5 +1,9 @@
 import { Container, Box, Typography } from "@mui/material";
-import { useShoppingCart, Product } from "../context/ShoppingCartContext";
+import {
+  useShoppingCart,
+  Product,
+  CartItem,
+} from "../context/ShoppingCartContext";
 import React, { useEffect, useState } from "react";
 import { DateRange } from "@mui/icons-material";
 import { formatCurrency } from "../utilities/formatCurrency";
@@ -11,39 +15,23 @@ const ipcRenderer = electron.ipcRenderer || false;
 
 type SalesRecieptProps = {
   total: number;
-  products: Product[];
+  productsInCart: ProductInCartItem[];
   department: string;
 };
 
-type RecieptItems = {
+export type ProductInCartItem = {
   _id: string;
   name: string;
   price: number;
   quantity: number;
 };
 
-const SalesReciept = ({ total, products, department }: SalesRecieptProps) => {
-  const { cartItems } = useShoppingCart();
-  const [recieptItems, setRecieptItems] = useState<RecieptItems[]>([]);
 
-
-  useEffect(() => {
-    const recieptPromises = cartItems.map(async ({ _id, quantity }) => {
-      try {
-        const product = await getProduct(_id);
-        console.log("inside reciept", product);
-
-        return { ...product, _id, quantity };
-      } catch (error) {
-        console.log(error);
-      }
-    });
-
-    Promise.all(recieptPromises).then((items: RecieptItems[]) => {
-      setRecieptItems(items);
-      console.log("recieptItems", recieptItems);
-    });
-  }, [cartItems]);
+const SalesReciept = ({
+  total,
+  productsInCart,
+  department,
+}: SalesRecieptProps) => {
   return (
     <Container maxWidth="xs">
       <Box textAlign="center" my={1}>
@@ -57,9 +45,7 @@ const SalesReciept = ({ total, products, department }: SalesRecieptProps) => {
         </Box>
       </Box>
 
-      {recieptItems.map(({ quantity, _id, price, name }) => {
-        console.log("see", name, quantity, price);
-
+      {productsInCart?.map(({ quantity, _id, price, name }) => {
         const subtotal = quantity * price;
         return (
           <Box key={_id} display="flex" justifyContent="space-between">
