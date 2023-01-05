@@ -1,7 +1,7 @@
 import Realm from "realm";
 
 export type OrderItem = {
-  _id: string;
+  id: string;
   name: string;
   price: number;
   quantity: number;

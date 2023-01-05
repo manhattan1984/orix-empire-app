@@ -20,7 +20,7 @@ type SalesRecieptProps = {
 };
 
 export type ProductInCartItem = {
-  _id: string;
+  id: string;
   name: string;
   price: number;
   quantity: number;
@@ -45,10 +45,10 @@ const SalesReciept = ({
         </Box>
       </Box>
 
-      {productsInCart?.map(({ quantity, _id, price, name }) => {
+      {productsInCart?.map(({ quantity, id, price, name }) => {
         const subtotal = quantity * price;
         return (
-          <Box key={_id} display="flex" justifyContent="space-between">
+          <Box key={id} display="flex" justifyContent="space-between">
             <Typography>
               {name} x{quantity}
             </Typography>

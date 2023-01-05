@@ -21,11 +21,11 @@ type SalesItemProps = {
   // price: number;
 };
 
-export async function getProduct(_id: string): Promise<Product> {
+export async function getProduct(id: string): Promise<Product> {
   // let product: Product;
   try {
     // @ts-ignore
-    const product: Product = await ipcRenderer.invoke("get-product-by-id", _id);
+    const product: Product = await ipcRenderer.invoke("get-product-by-id", id);
     return product;
   } catch (e) {
     console.log(e);
@@ -43,7 +43,7 @@ const SaleItem = ({ id }: SalesItemProps) => {
 
   const quantity = getItemQuantity(id);
 
-  // const { name, price } = products.find((product) => id === product._id);
+  // const { name, price } = products.find((product) => id === product.id);
 
   const changeQuantity = () => {
     // @ts-ignore

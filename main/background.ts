@@ -1,11 +1,13 @@
-import { app, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import serve from "electron-serve";
+import { readlink } from "fs";
 import { Order } from "../types";
 import { createWindow } from "./helpers";
 import { UseRealm } from "./useRealm";
 require("@electron/remote/main").initialize();
 
 const isProd: boolean = process.env.NODE_ENV === "production";
+// const isProd = true
 
 if (isProd) {
   serve({ directory: "app" });
@@ -28,7 +30,6 @@ ipcMain.handle("get-product-by-id", async (event, arg) => {
 });
 
 ipcMain.handle("get-orders", async (event, arg) => {
-
   const orders = RealmDb.getOrders(arg);
 
   console.log("filtered orders", orders);
@@ -39,6 +40,33 @@ ipcMain.handle("get-orders", async (event, arg) => {
 ipcMain.handle("add-order", async (event, order: Order) => {
   RealmDb.addOrder(order);
   return;
+});
+
+ipcMain.handle("log-in", async (event, credentials) => {
+  console.log("cred", credentials);
+
+  const user = RealmDb.logIn(credentials);
+  return user;
+});
+
+ipcMain.handle("get-all-products", async (event, request) => {
+  console.log("request", request);
+
+  const products = RealmDb.getAllProducts(request);
+
+  return products;
+});
+
+ipcMain.handle("create-product", async (event, request) => {
+  const product = RealmDb.createProduct(request);
+
+  return product;
+});
+
+ipcMain.handle("update-product", async (event, request) => {
+  const product = RealmDb.updateProduct(request);
+
+  return product;
 });
 
 (async () => {
@@ -53,7 +81,7 @@ ipcMain.handle("add-order", async (event, order: Order) => {
     },
   });
   if (isProd) {
-    await mainWindow.loadURL("app://./home.html");
+    await mainWindow.loadURL("app://./index.html");
   } else {
     const port = process.argv[2];
     await mainWindow.loadURL(`http://localhost:${port}/`);

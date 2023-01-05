@@ -64,20 +64,6 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
   const [search, setSearch] = useState<string>("");
   const [products, setProducts] = useState([]);
   const [productsInCart, setProductsInCart] = useState<ProductInCartItem[]>();
-  //
-  const [online, setOnline] = useState(true);
-  useEffect(() => {
-    function changeStatus() {
-      setOnline(navigator.onLine);
-    }
-    window.addEventListener("online", changeStatus);
-    window.addEventListener("offline", changeStatus);
-    return () => {
-      window.removeEventListener("online", changeStatus);
-      window.removeEventListener("offline", changeStatus);
-    };
-  }, []);
-  //
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -157,6 +143,7 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
   };
 
   const logOut = () => {
+    setCartItems([])
     router.push("/");
   };
 
@@ -177,15 +164,15 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
 
   // TODO: calculate total based on cart items
   useEffect(() => {
-    const productItems = cartItems.map(({ _id }) => {
-      return getProduct(_id);
+    const productItems = cartItems.map(({ id }) => {
+      return getProduct(id);
     });
 
     Promise.all(productItems)
       .then((productItems) => {
         const newTotal = cartItems.reduce((total, cartItem) => {
           const product: Product = productItems.filter(
-            (product) => product._id === cartItem._id
+            (product) => product.id === cartItem.id
           )[0];
           return total + (product?.price || 0) * cartItem.quantity;
         }, 0);
@@ -207,11 +194,11 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
   };
 
   function getProductsInCart(setList: SetListType, cartItems: CartItem[]) {
-    const productsPromises = cartItems.map(async ({ _id, quantity }) => {
+    const productsPromises = cartItems.map(async ({ id, quantity }) => {
       try {
-        const product = await getProduct(_id);
+        const product = await getProduct(id);
 
-        return { ...product, _id, quantity };
+        return { ...product, id, quantity };
       } catch (error) {
         console.log(error);
       }
@@ -262,7 +249,7 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
                     (product) => product.name === newValue
                   );
 
-                  product && changeCartQuantity(product._id, 1);
+                  product && changeCartQuantity(product.id, 1);
                 }}
                 renderInput={(params) => (
                   <TextField
@@ -297,7 +284,7 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
               <Grid item xs={2}></Grid>
             </Grid>
             {cartItems.map((product) => (
-              <SaleItem key={product._id} id={product._id} />
+              <SaleItem key={product.id} id={product.id} />
             ))}
           </Paper>
         </Grid>

@@ -81,8 +81,6 @@ const ReportDialog = ({
   };
 
   const getOrders = async () => {
-    const user = "me";
-
     const getTimeStamp = (date: Dayjs) => dayjs(date).valueOf();
 
     const startDateTimeStamp = getTimeStamp(startDate);
