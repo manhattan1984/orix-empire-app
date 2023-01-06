@@ -6,11 +6,11 @@ export const empireTheme = createTheme({
       main: "#1F2833",
     },
     secondary: {
-      main: "#00afa6",
+      main: "#0078af",
     },
     background: {
-      default: "#f7e7ce",
-      paper: "#f7f7dd",
+      default: "#e9e9e9",
+      paper: "#ffffff",
     },
   },
   typography: {
@@ -34,5 +34,4 @@ export const empireTheme = createTheme({
       fontFamily: "EB Garamond",
     },
   },
-  
 });

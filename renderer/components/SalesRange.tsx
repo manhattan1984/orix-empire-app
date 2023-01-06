@@ -20,14 +20,8 @@ const SalesRange = ({ label, time, setTime }: SalesRangeProps) => {
         value={time}
         onChange={(newTime) => {
           const time = dayjs(newTime).unix();
-          console.log("new time", time);
 
-          // newTime.t;
-          // console.log("date", newTime.toISOString());
-
-          // const date = new Date(newTime.toISOString());
-          // const date = new Date(newTime.toDate());
-          // setTime(newTime.unix());
+         
           setTime(newTime);
         }}
       />

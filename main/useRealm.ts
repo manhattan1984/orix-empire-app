@@ -51,7 +51,6 @@ const UserSchema = {
 
 const getDBPath = (filename): string => {
   let base = app.getAppPath();
-  console.log("base", base);
 
   if (app.isPackaged) {
     base = base.replace("/app.asar", "");
@@ -74,7 +73,6 @@ export class UseRealm {
     Realm.open(originalConfig)
       .then((realm) => {
         this.realm = realm;
-        console.log("path", this.realm.path);
       })
       .catch((error) => console.log(error));
   }
@@ -125,16 +123,13 @@ export class UseRealm {
   }
 
   logIn({ username, password }) {
-    console.log("username", username);
 
     const user = this.realm.objectForPrimaryKey("User", username).toJSON();
 
-    console.log(user);
 
     const success = user && user.password === password;
 
     if (success) {
-      console.log("Log In Success");
       return user;
     }
     return null;
@@ -142,7 +137,6 @@ export class UseRealm {
 
   // Admin
   getAllProducts({ resource, params }) {
-    console.log("resource", resource);
 
     const { field, order } = params;
     const products = this.realm.objects(resource).toJSON();
@@ -184,18 +178,19 @@ export class UseRealm {
     // to be continued
   }
 
-  createProduct({resource, params}) {
+  createProduct({ resource, params }) {
     const createData = params.data;
     createData.id = new Realm.BSON.UUID().toHexString();
     let data;
     this.realm.write(() => {
       data = this.realm.create(resource, createData).toJSON();
     });
+
     const response = { data };
     return response;
   }
 
-  updateProduct({resource, params}) {
+  updateProduct({ resource, params }) {
     const { id, data } = params;
     let product;
     this.realm.write(() => {

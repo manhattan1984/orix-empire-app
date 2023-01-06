@@ -26,7 +26,6 @@ export type ProductInCartItem = {
   quantity: number;
 };
 
-
 const SalesReciept = ({
   total,
   productsInCart,
@@ -34,14 +33,20 @@ const SalesReciept = ({
 }: SalesRecieptProps) => {
   return (
     <Container maxWidth="xs">
-      <Box textAlign="center" my={1}>
-        <Typography textTransform="uppercase">
+      <Box textAlign="left" my={1}>
+        <Typography textTransform="uppercase" variant="h6">
           Orix Empire {department}
         </Typography>
-        <Typography>No.1 Wobasi Street, Off Ikwerre Road</Typography>
+        <Typography my={1} variant="subtitle2">
+          No.1 Wobasi Street, Off Ikwerre Road
+        </Typography>
         <Box display="flex" my={1}>
-          <Typography mr={1}>{new Date().toLocaleDateString()}</Typography>
-          <Typography>{new Date().toLocaleTimeString()}</Typography>
+          <Typography mr={1} variant="subtitle2">
+            {new Date().toLocaleDateString()}
+          </Typography>
+          <Typography variant="subtitle2">
+            {new Date().toLocaleTimeString()}
+          </Typography>
         </Box>
       </Box>
 
@@ -49,10 +54,10 @@ const SalesReciept = ({
         const subtotal = quantity * price;
         return (
           <Box key={id} display="flex" justifyContent="space-between">
-            <Typography>
+            <Typography variant="body2">
               {name} x{quantity}
             </Typography>
-            <Typography>{formatCurrency(subtotal)}</Typography>
+            <Typography variant="body2">{formatCurrency(subtotal)}</Typography>
           </Box>
         );
       })}

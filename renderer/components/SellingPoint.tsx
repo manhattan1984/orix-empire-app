@@ -27,18 +27,7 @@ import { formatCurrency } from "../utilities/formatCurrency";
 import { useSnackbar } from "notistack";
 import CircularProgress from "@mui/material/CircularProgress";
 import Loading from "../components/Loading";
-import {
-  Cancel,
-  ExitToApp,
-  OfflineBolt,
-  Power,
-  PowerOff,
-  Print,
-  Receipt,
-  ReceiptLong,
-  WifiFind,
-  WifiOff,
-} from "@mui/icons-material";
+import { Cancel, ExitToApp, Print, Receipt } from "@mui/icons-material";
 import Head from "next/head";
 import electron, { IpcRenderer } from "electron";
 
@@ -94,14 +83,6 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
     // @ts-ignore
     ipcRenderer.invoke("add-order", order);
 
-    return false;
-
-    try {
-      // add order to database
-    } catch (error) {
-      console.log(error);
-      return;
-    }
     return true;
   };
 
@@ -124,14 +105,14 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
         clearSales();
       }
     }
+    if (due !== 0) {
+      enqueueSnackbar("Complete Payment");
+    }
     if (isCartEmpty) {
       enqueueSnackbar("Cart Is Empty");
     }
     if (due < 0) {
       enqueueSnackbar("The customer over paid, return over due");
-    }
-    if (total >= due) {
-      enqueueSnackbar("Complete Payment");
     }
   };
 
@@ -143,7 +124,7 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
   };
 
   const logOut = () => {
-    setCartItems([])
+    setCartItems([]);
     router.push("/");
   };
 
@@ -227,7 +208,9 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
             <Receipt />
           </IconButton>
         </Box>
-        <Typography mr={1}>{email}</Typography>
+        <Typography textTransform="capitalize" mr={1} variant="h6">
+          {email}
+        </Typography>
         <IconButton size="large" color="error" onClick={logOut}>
           <ExitToApp />
         </IconButton>
@@ -299,10 +282,10 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
             <Divider />
 
             <Box my={1}>
-              <Typography>Add Payment</Typography>
+              <Typography my={2}>Add Payment</Typography>
 
               <Box
-                my={1}
+                my={2}
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
@@ -310,6 +293,7 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
                 <Typography mr={1}>Cash</Typography>
                 <TextField
                   type={"number"}
+                  // variant="standard"
                   onChange={calculateDue}
                   inputRef={cashRef}
                   inputProps={inputProps}
@@ -319,9 +303,11 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
+                my={2}
               >
                 <Typography mr={1}>Card</Typography>
                 <TextField
+                  // variant="contained"
                   inputProps={inputProps}
                   type={"number"}
                   onChange={calculateDue}
@@ -352,7 +338,7 @@ const SellingPoint = ({ department, email }: SellingPointProps) => {
           </Paper>
         </Grid>
       </Grid>
-      <Box sx={{ display: "block" }}>
+      <Box sx={{ display: "none" }}>
         <Box ref={recieptRef}>
           <SalesReciept
             total={total}

@@ -1,15 +1,10 @@
 {
   "private": true,
-  "name": "my-nextron-app",
-  "description": "My application description",
+  "name": "OrixEmpire",
+  "description": "Orix Empire POS App",
   "version": "1.0.0",
-  "author": "Yoshihide Shiono <shiono.yoshihide@gmail.com>",
+  "author": "Light Web Dev <mikkimanhattan@gmail.com>",
   "main": "app/background.js",
-  "build": {
-    "extraResources": [
-      "./extraResources/**"
-    ]
-  },
   "scripts": {
     "dev": "nextron",
     "build": "nextron build",
@@ -40,8 +35,5 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^4.8.2"
-  },
-  "extraResources": [
-    "realm/database.realm"
-  ]
+  }
 }

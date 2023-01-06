@@ -71,24 +71,26 @@ const SaleItem = ({ id }: SalesItemProps) => {
           <Typography>{product.name}</Typography>
         </Grid>
         <Grid item xs={2}>
-          <Typography>{formatCurrency(product.price)}</Typography>
+          <Typography variant="subtitle2">
+            {formatCurrency(product.price)}
+          </Typography>
         </Grid>
         <Grid item xs={2}>
           <Box display="flex" width="100%">
-            {/* <Button onClick={() => decreaseCartQuantity(id)}>-</Button>
-            <Typography>{quantity}</Typography>
-            <Button onClick={() => increaseCartQuantity(id)}>+</Button> */}
             <TextField
               inputRef={quantityRef}
               onChange={changeQuantity}
               type="number"
               inputProps={inputProps}
               sx={{ width: "50%" }}
+              variant="standard"
             />
           </Box>
         </Grid>
         <Grid item xs={2}>
-          <Typography>{formatCurrency(product.price * quantity)}</Typography>
+          <Typography variant="subtitle2">
+            {formatCurrency(product.price * quantity)}
+          </Typography>
         </Grid>
         <Grid item xs={2}>
           <IconButton

@@ -9,31 +9,27 @@ import Head from "next/head";
 import electron from "electron";
 const ipcRenderer = electron.ipcRenderer || false;
 
-export const login = async (username, password, router, pathname) => {
-  if (username && password) {
-    // @ts-ignore
-    const user = await ipcRenderer.invoke("log-in", {
-      username,
-      password,
-    });
-    if (user) {
-      console.log("user", user);
-      if (pathname === "/home") {
-        router.push({ pathname, query: { username } });
-      } else {
-        const role = user.role;
-        if (role === "admin") {
-          router.push("/admin");
-        }
-        console.log("role", user.role);
-      }
-    }
-  }
-};
-
 const Login = () => {
   // const [path, setPath] = useState(app.getAppPath());
 
+  const { enqueueSnackbar } = useSnackbar();
+
+  const login = async (username, password, router, pathname) => {
+    if (username && password) {
+      // @ts-ignore
+      const user = await ipcRenderer.invoke("log-in", {
+        username,
+        password,
+      });
+      if (user) {
+        router.push({ pathname, query: { username } });
+      } else {
+        enqueueSnackbar("Incorrect username or password");
+      }
+    } else {
+      enqueueSnackbar("Enter username and password");
+    }
+  };
   const usernameRef = useRef();
   const passwordRef = useRef();
   const router = useRouter();

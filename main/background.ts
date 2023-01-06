@@ -32,7 +32,6 @@ ipcMain.handle("get-product-by-id", async (event, arg) => {
 ipcMain.handle("get-orders", async (event, arg) => {
   const orders = RealmDb.getOrders(arg);
 
-  console.log("filtered orders", orders);
 
   return orders;
 });
@@ -43,14 +42,12 @@ ipcMain.handle("add-order", async (event, order: Order) => {
 });
 
 ipcMain.handle("log-in", async (event, credentials) => {
-  console.log("cred", credentials);
 
   const user = RealmDb.logIn(credentials);
   return user;
 });
 
 ipcMain.handle("get-all-products", async (event, request) => {
-  console.log("request", request);
 
   const products = RealmDb.getAllProducts(request);
 

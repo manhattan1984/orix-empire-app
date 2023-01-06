@@ -1,6 +1,6 @@
-appId: com.example.nextron
-productName: My Nextron App
-copyright: Copyright © 2018 Yoshihide Shiono
+appId: com.orixempire.pos
+productName: Orix Empire POS
+copyright: Copyright © 2023 Light Web Dev
 directories:
   output: dist
   buildResources: resources

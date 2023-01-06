@@ -1,6 +1,13 @@
-import { Box, Dialog, Divider, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  Divider,
+  Grid,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { formatCurrency } from "../utilities/formatCurrency";
 import SalesRange from "./SalesRange";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -8,6 +15,8 @@ import Loading from "./Loading";
 
 import { Order, OrderItem } from "../../types";
 import electron from "electron";
+import { useReactToPrint } from "react-to-print";
+import { Receipt } from "@mui/icons-material";
 
 const ipcRenderer = electron.ipcRenderer || false;
 
@@ -25,6 +34,8 @@ const ReportDialog = ({
   department,
 }: ReportDialogProps) => {
   const handleClose = () => {
+    setStartDate(defaultDate);
+    setEndDate(defaultDate);
     onClose();
   };
 
@@ -33,6 +44,11 @@ const ReportDialog = ({
   const [startDate, setStartDate] = useState<Dayjs | null>(defaultDate);
   const [endDate, setEndDate] = useState<Dayjs | null>(defaultDate);
   const [orders, setOrders] = useState<Order[]>([]);
+  const reportRef = useRef();
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef.current,
+  });
 
   // let orders, ordersLoading;
 
@@ -86,7 +102,6 @@ const ReportDialog = ({
     const startDateTimeStamp = getTimeStamp(startDate);
     const endDateTimeStamp = getTimeStamp(endDate);
 
-    console.log("timestamps", startDateTimeStamp, endDateTimeStamp, userEmail);
 
     // @ts-ignore
     const now = await ipcRenderer.invoke("get-orders", {
@@ -100,7 +115,6 @@ const ReportDialog = ({
   useEffect(() => {
     getOrders();
     getSummary();
-    console.log("orders length", orders.length);
   }, [startDate, endDate]);
 
   useEffect(() => {
@@ -109,8 +123,13 @@ const ReportDialog = ({
 
   return (
     <Dialog onClose={handleClose} open={open} fullWidth={true}>
-      <Box padding={2}>
-        <Typography variant="h5">Sales Summary</Typography>
+      <Box padding={2} ref={reportRef}>
+        <Box width="100%" display="flex" justifyContent="space-between">
+          <Typography variant="h5">Sales Summary</Typography>
+          <IconButton onClick={handlePrint}>
+            <Receipt />
+          </IconButton>
+        </Box>
         <Box display="flex" justifyContent="space-between" my={2}>
           <SalesRange time={startDate} setTime={setStartDate} label="From" />
           <SalesRange time={endDate} setTime={setEndDate} label="To" />
